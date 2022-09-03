@@ -1,3 +1,5 @@
 <p class="country-info">capital: {{0.capital}}</p>
 <p class="country-info">population: {{0.population}}</p>
-<p class="country-info">languages: {{ 0.languages}}</p>
+{{#each  0.languages}}
+    <p class="country-info">languages: {{this}}</p>
+{{/each}}
