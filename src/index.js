@@ -10,49 +10,47 @@ const cardContainer = document.querySelector(`.country-info`);
 const serchForm = document.querySelector(`#search-box`);
 const countriesList = document.querySelector('.country-list');
 
-
 serchForm.addEventListener(`input`, debounce(onSerch, DEBOUNCE_DELAY));
 
 function onSerch(e) {
     e.preventDefault();
-
     clearShownInfo();
-
     let inputValue = e.target.value.trim();
-
     if (inputValue !== '') {
-         fetchCountries(inputValue)
-           .then(rendercountryCard)
-           .catch(onFetchError);
+         fetchCountries(inputValue).then(checkRequest).catch(onFetchError);
     };
 };
 
-function createCountriesList(countries) {
+function checkRequest(countries) {
+  if (countries.length === 1) {
+    createCountriesList(countries);
+    rendercountryCard(countries);
+  } else if (countries.length > 10) {
+    Notiflix.Notify.info(
+      'Too many matches found. Please enter a more specific name.'
+    );
+    clearShownInfo();
+  } else if (countries.length <= 10) {
+    createCountriesList(countries);
+  } else if (countries.length === 0) {
+    clearShownInfo();
+  }
+};
 
+function createCountriesList(countries) {
   const templateCountry = countries
     .map(({ name, capital, population, flags, languages }) => {
       return `<li class="country-item">
     <img width="40" height="30" src=${flags.svg} alt="Flag" class="image-flag">
-    <span>${name.official}</span></li>`;
+    <span>${name.common}</span></li>`;
     })
     .join('');
-  
   countriesList.insertAdjacentHTML('beforeend', templateCountry);
-
-  if (countriesList.children.length === 1) {
-    rendercountryCard(countries);
-  } else if (countriesList.children.length > 10) {
-    Notiflix.Notify.info(
-      'Too many matches found. Please enter a more specific name.'
-    );
-  } else if (countriesList.children.length === 0) {
-    clearShownInfo();
-  };
 };
 
 function rendercountryCard(country) {
   const markup = countryCard(country);
-  cardContainer.insertAdjacentHTML('beforeend', markup);
+  cardContainer.innerHTML = markup;
 };
 
 function clearShownInfo() {
